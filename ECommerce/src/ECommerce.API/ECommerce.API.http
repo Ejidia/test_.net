@@ -1,0 +1,48 @@
+@ECommerce.API_HostAddress = http://localhost:5276
+
+# GET - Get all users
+GET {{ECommerce.API_HostAddress}}/users
+Accept: application/json
+
+###
+
+# GET - Get user by ID
+GET {{ECommerce.API_HostAddress}}/users/1
+Accept: application/json
+
+###
+
+# POST - Create new user
+POST {{ECommerce.API_HostAddress}}/users
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "firstName": "Alice",
+  "lastName": "Wilson",
+  "phoneNumber": "+1234567890",
+  "role": 0,
+  "isActive": true
+}
+
+###
+
+# PUT - Update user
+PUT {{ECommerce.API_HostAddress}}/users/1
+Content-Type: application/json
+
+{
+  "email": "john.updated@example.com",
+  "firstName": "John",
+  "lastName": "Doe Updated",
+  "phoneNumber": "+1987654321",
+  "role": 0,
+  "isActive": true
+}
+
+###
+
+# DELETE - Delete user
+DELETE {{ECommerce.API_HostAddress}}/users/3
+
+###
