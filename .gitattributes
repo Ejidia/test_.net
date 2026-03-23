@@ -1,0 +1,50 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Force batch scripts to always use CRLF line endings so that if a repo is accessed
+# in Windows via a file share from Linux, the scripts will work.
+*.{cmd,[cC][mM][dD]} text eol=crlf
+*.{bat,[bB][aA][tT]} text eol=crlf
+
+# Force bash scripts to always use LF line endings so that if a repo is accessed
+# in Unix via a file share from Windows, the scripts will work.
+*.sh text eol=lf
+
+# C# files
+*.cs text diff=csharp
+*.csx text diff=csharp
+*.vb text
+*.resx text
+*.config text
+*.props text
+*.targets text
+*.nuspec text
+*.proj text
+*.sln text eol=crlf
+
+# Web files
+*.html text diff=html
+*.css text
+*.js text
+*.json text
+*.xml text
+*.yml text
+*.yaml text
+
+# Documentation
+*.md text
+*.txt text
+
+# Binary files
+*.dll binary
+*.exe binary
+*.pdb binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.7z binary
+*.tar binary
+*.gz binary
