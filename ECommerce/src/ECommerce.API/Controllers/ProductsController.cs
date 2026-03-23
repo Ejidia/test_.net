@@ -17,15 +17,73 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] int? categoryId = null,
+        [FromQuery] decimal? minPrice = null,
+        [FromQuery] decimal? maxPrice = null,
+        [FromQuery] string sortBy = "name",
+        [FromQuery] bool sortDesc = false)
     {
-        return await _context.Products.Include(p => p.Category).ToListAsync();
+        var query = _context.Products.Include(p => p.Category).AsQueryable();
+
+        // Search filter
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
+        }
+
+        // Category filter
+        if (categoryId.HasValue)
+        {
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+        }
+
+        // Price filters
+        if (minPrice.HasValue)
+        {
+            query = query.Where(p => p.Price >= minPrice.Value);
+        }
+        if (maxPrice.HasValue)
+        {
+            query = query.Where(p => p.Price <= maxPrice.Value);
+        }
+
+        // Sorting
+        query = sortBy.ToLower() switch
+        {
+            "price" => sortDesc ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+            "date" => sortDesc ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
+            _ => sortDesc ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name)
+        };
+
+        // Pagination
+        var totalItems = await query.CountAsync();
+        var products = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        Response.Headers.Add("X-Total-Count", totalItems.ToString());
+        Response.Headers.Add("X-Page", page.ToString());
+        Response.Headers.Add("X-Page-Size", pageSize.ToString());
+
+        return products;
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Product>> GetProduct(int id)
+    public async Task<ActionResult<Product>> GetProduct(int id, [FromQuery] bool includeReviews = false)
     {
-        var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+        var query = _context.Products.Include(p => p.Category).AsQueryable();
+        
+        if (includeReviews)
+        {
+            query = query.Include(p => p.Reviews).ThenInclude(r => r.User);
+        }
+
+        var product = await query.FirstOrDefaultAsync(p => p.Id == id);
         return product == null ? NotFound() : product;
     }
 
